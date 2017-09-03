@@ -11,6 +11,10 @@ describe('Blockchain', () => {
   it('has a genesis block', () => {
     var blockchain = new Blockchain();
     assert.equal(blockchain.size(), 1);
+
+    var block = blockchain.getBlock(0);
+    assert.equal(block.hash, '80acf69bb60b19115876dd2688aa64dd5ce88a2a73ebcf07511a899569cb2a1b');
+    assert.equal(block.hash, block.toHash());
   });
 
   it('uses PoW', () => {

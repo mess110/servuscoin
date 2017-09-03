@@ -57,8 +57,6 @@ module.exports = class Blockchain {
     if (this.difficulty < 1) {
       this.difficulty = 1;
     }
-
-    console.log("New difficulty: " + this.difficulty);
   }
 
   getMineTime(i) {
