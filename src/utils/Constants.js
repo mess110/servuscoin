@@ -11,8 +11,9 @@ if (typeof process === 'object') {
 
 var decimals = 2;
 
-module.exports = {
+var hash = {
   url: 'https://95.85.63.206:3001/',
+  // url: 'https://localhost:3001/',
   isNode: isNode,
   version: package.version,
 
@@ -36,6 +37,7 @@ module.exports = {
           if (transaction.type === 'output') {
             balance += transaction.amount;
           }
+
           balance = Number((balance).toFixed(decimals));
         }
       }
@@ -43,3 +45,5 @@ module.exports = {
     return balance;
   }
 }
+
+module.exports = hash;

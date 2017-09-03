@@ -28,7 +28,7 @@ module.exports = class MemPool {
 
   getBalance(address) {
     var transactions = this.get();
-    var balance = Constants.calcBalance(transactions);
+    var balance = Constants.calcBalance(transactions, address);
 
     return { address: address, balance: balance };
   }
