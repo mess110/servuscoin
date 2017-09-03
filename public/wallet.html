@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+        <link rel="stylesheet" href="css/wallet.css">
+
+        <style type="text/css" media="all">
+            .input-group-addon img, #scan-qr-button img {
+                max-width: 32px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <img id="logo" src="/img/logo.png" class="img-fluid"/>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col" style="text-align: center; font-size: 42px">
+                    <span id="balance">0.00</span>
+                </div>
+            </div>
+            <br />
+            <div class="tab-content">
+                <div class="modal fade" id="scanQrModal" tabindex="-1" role="dialog" aria-labelledby="qrScanModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-body" style="text-align: center"> <!-- TODO: find bootstrap center thing -->
+                                <video id="preview" style="max-width: 100%; max-height: 50%;"></video>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-body" style="text-align: center"> <!-- TODO: find bootstrap center thing -->
+                                <img id="qrCode" src="/img/coin.png" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="send" role="tabpanel">
+                    <label for="inputTo">To</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="inputTo" placeholder="To">
+                        <div class="input-group-addon"><img src="/img/servuscoinqr.png" data-qr-for="#inputTo" class="qr-button" alt="QR"/></div>
+                        <button type="button" id="scan-qr-button" class="btn btn-secondary">Scan</button>
+                    </div>
+                    <br />
+                    <label for="inputPublicKey">Amount</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" class="form-control" id="inputAmount" placeholder="Amount">
+                        <div class="input-group-addon"><img src="/img/coin.png" alt="ServusCoin"/></div>
+                    </div>
+                    <br />
+                    <button type="button" id="send-button" class="btn btn-primary float-right">Send</button>
+                </div>
+                <div class="tab-pane active" id="wallet" role="tabpanel">
+                    <label for="inputPrivateKey">Private key</label>
+                    <div class="input-group" id="showPrivateKeyButton">
+                        <button type="button" id="send-button" class="btn btn-danger" style="width: 100%;">show private key</button>
+                    </div>
+                    <div class="input-group" id="privateKeyArea" style="display: none;">
+                        <input type="text" class="form-control" id="inputPrivateKey" placeholder="Private Key">
+                        <div class="input-group-addon"><img src="/img/servuscoinqr.png" data-qr-for="#inputPrivateKey" class="qr-button" alt="QR"/></div>
+                        <button type="button" id="scan-qr-private-button" class="btn btn-secondary">Scan</button>
+                    </div>
+                    <br />
+                    <label for="inputPublicKey">Public key</label>
+                    <div class="input-group">
+                        <input type="text" readonly class="form-control" id="inputPublicKey" placeholder=" Key">
+                        <div class="input-group-addon"><img src="/img/servuscoinqr.png" data-qr-for="#inputPublicKey" class="qr-button" alt="QR"/></div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="mine" role="tabpanel" style="text-align: center">
+                    <div class="row">
+                        <div class="col">
+                            <p id="mining-output">Press start to mine.<br />You get 1 SC for every block you find.</p>
+                            <img id="mining" src="/img/mining.gif" class="img-fluid" style="max-height: 330px; display: none; border-radius: 4px;"/>
+                            <br />
+                            <br />
+                            <button type="button" id="start-mining" class="btn btn-primary">Start</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs justify-content-center" role="tablist" style="position: absolute; bottom: 0px; width: 100%;">
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#send" role="tab">Send</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#wallet" role="tab">Wallet</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#mine" role="tab">Mine</a>
+            </li>
+        </ul>
+
+        <div id="loading" style="position: absolute; top: 0px; width: 100%; height: 100%; background-color: white; z-index: 100000000000000; text-align: center; padding-top: 100px;">
+            <img id="logo" src="/img/coin.png" class="img-fluid" style="max-height: 200px;"/>
+            <p>Loading</p>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+
+        <script src="/js/servuscoin.js"></script>
+
+        <script type="text/javascript" charset="utf-8">
+            $(function () {
+                var minerTextarea = $('#miner-output');
+                var api = new servuscoin.API(servuscoin.Constants.url);
+                // var api = new servuscoin.API();
+
+                var localKey = localStorage.getItem('privateKey');
+                if (localKey === null) {
+                    var address = new servuscoin.Address();
+                    localStorage.setItem('privateKey', address.getPrivateKey());
+                } else {
+                    var address = new servuscoin.Address(localKey);
+                }
+
+                updateBalance = function () {
+                    api.getBalance($('#inputPublicKey').val(), function (result) {
+                        $('#balance').text(result.balance.toFixed(servuscoin.Constants.decimals));
+                    });
+                }
+
+                var isInputValid = function () {
+                    var to = $('#inputTo').val();
+                    var amount = parseFloat($('#inputAmount').val());
+                    var balance = parseFloat($('#balance').text());
+
+                    if (amount > balance) {
+                        return false;
+                    }
+
+                    if (to.indexOf('caca') !== 0) {
+                        return false;
+                    }
+
+                    return true;
+                }
+
+                var enableSendIfValid = function () {
+                    if (isInputValid()) {
+                        $('#send-button').prop('disabled', false);
+                    } else {
+                        $('#send-button').prop('disabled', true);
+                    }
+                };
+
+                $('#send-button').prop('disabled', true);
+                $('#inputTo').bind('input', enableSendIfValid);
+                $('#inputAmount').bind('input', enableSendIfValid);
+
+                $('#inputPrivateKey').val(address.getPrivateKey());
+                $('#inputPublicKey').val(address.getServusKey());
+                updateBalance();
+
+                if (window.Worker) { // Check if Browser supports the Worker api.
+                    // Requires script name as input
+                    var myWorker = new Worker("js/worker.js");
+
+                    myWorker.onmessage = function(e) {
+                        var tmpBlock = servuscoin.Block.fromObj(e.data);
+                        $('#mining').hide();
+                        $('#start-mining').show();
+                        api.announceBlock(tmpBlock, function (data) {
+                            if (data.hash !== tmpBlock.hash) {
+                                $('#mining-output').text('Oh oh.. The block was already mined');
+                                new Audio('audio/block_found.ogg').play();
+                            } else {
+                                $('#mining-output').text('Block found!!!!1111oneone');
+                            }
+                            updateBalance();
+                        });
+                    };
+                } else {
+                    alert('no Worker support');
+                    // TODO: fallback
+                }
+
+                $('.qr-button').click(function (event) {
+                    var target = $(event.target).data('qr-for');
+                    var value = $(target).val();
+                    $('#qrCode').attr("src","https://chart.apis.google.com/chart?cht=qr&chs=200x200&chl=" + value);
+                    $('#qrModal').modal('toggle');
+                });
+
+                $('#scan-qr-private-button').click(function (event) {
+                    let scanner = new servuscoin.Instascan.Scanner({ video: document.getElementById('preview') });
+                    scanner.addListener('scan', function (content) {
+                        console.log(content);
+                        scanner.stop();
+                        localStorage.setItem('privateKey', content);
+                        location.reload();
+                    });
+                    servuscoin.Instascan.Camera.getCameras().then(function (cameras) {
+                        if (cameras.length > 0) {
+                            scanner.start(cameras[0]);
+                            $('#scanQrModal').modal('toggle');
+                        } else {
+                            console.error('No cameras found.');
+                        }
+                    }).catch(function (e) {
+                        console.error(e);
+                    });
+                });
+
+                $('#scan-qr-button').click(function (event) {
+                    let scanner = new servuscoin.Instascan.Scanner({ video: document.getElementById('preview') });
+                    scanner.addListener('scan', function (content) {
+                        // alert(content);
+                        console.log(content);
+                        $('#inputTo').val(content);
+                        scanner.stop();
+                        $('#scanQrModal').modal('toggle');
+                    });
+                    servuscoin.Instascan.Camera.getCameras().then(function (cameras) {
+                        if (cameras.length > 0) {
+                            scanner.start(cameras[0]);
+                            $('#scanQrModal').modal('toggle');
+                        } else {
+                            console.error('No cameras found.');
+                        }
+                    }).catch(function (e) {
+                        console.error(e);
+                    });
+                });
+
+                $('#start-mining').click(function (evet) {
+                    $('#mining').show()
+                    $('#mining-output').text('Mining..');
+                    $('#start-mining').hide();
+                    api.getInfo(function (data) {
+                        myWorker.postMessage([address.getPrivateKey(), data]);
+                    });
+                });
+
+                $('#logo').click(function (event) {
+                    updateBalance();
+                });
+
+                $('#send-button').click(function (event) {
+                    var amount = parseFloat($('#inputAmount').val());
+                    var to = $('#inputTo').val();
+                    var from = $('#inputPublicKey').val();
+                    var transaction = new servuscoin.Transaction([
+                        { type: 'input', address: from, amount: amount },
+                        { type: 'output', address: to, amount: amount }
+                    ]);
+                    transaction.sign($('#inputPrivateKey').val());
+
+                    api.createTransaction(transaction.toObject(), function (data) {
+                        updateBalance();
+                        console.log(data);
+
+                        $('#inputTo').val('');
+                        $('#inputAmount').val('');
+                        $('#send-button').prop('disabled', true);
+                    });
+                });
+
+                var showPrivateKeyButton = $('#showPrivateKeyButton');
+                showPrivateKeyButton.click(function (event) {
+                    showPrivateKeyButton.hide();
+                    $('#privateKeyArea').show();
+                });
+
+                $('#loading').hide();
+            });
+        </script>
+    </body>
+</html>

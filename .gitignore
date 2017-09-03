@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+*.pem
+
+public/js/servuscoin.js
+public/js/worker.js
+
+public/blocks.json
