@@ -5,6 +5,11 @@ var PoW = require('./PoW');
 
 module.exports = class Blockchain {
   constructor() {
+    this.difficulty = Constants.difficulty;
+    this.blockchain = [];
+    this.adjustBlockCount = 5;
+    this.targetBlockTime = 10; // seconds
+
     var tmp = new Block(0, "0", 1504363937102, {
       transactions: [],
       meta: "are cineva linku catre pozele de la pontoneala?",
@@ -12,11 +17,7 @@ module.exports = class Blockchain {
       difficulty: 1
     }, "80acf69bb60b19115876dd2688aa64dd5ce88a2a73ebcf07511a899569cb2a1b");
     tmp.nonce = '88d2fc022db4';
-
-    this.difficulty = Constants.difficulty;
-    this.blockchain = [tmp];
-    this.adjustBlockCount = 5;
-    this.targetBlockTime = 10; // seconds
+    this._push(tmp);
   }
 
   _push(block) {
@@ -26,10 +27,13 @@ module.exports = class Blockchain {
   setBlockchain(newBlocks) {
     for (var block of newBlocks) {
       if (this.getBlock(block.index) && this.getBlock(block.index).hash === block.hash) {
+        // this also intentionally omits the genesis block because it can not
+        // be validated with the previous block
         continue;
       }
       var result = this.addNewBlock(block, true);
       if (result === false) {
+        console.log(block);
         throw 'could not add block';
       }
     }

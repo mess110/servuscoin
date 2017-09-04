@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 
 var Constants = require('./Constants');
+var DB = require('./DB');
 var Transaction = require('../coin/Transaction');
 
 module.exports = class HttpServer {
@@ -34,16 +35,19 @@ module.exports = class HttpServer {
     app.post('/transaction', (req, res) => {
       var obj = req.body;
       var tempTransaction = Transaction.fromObject(obj);
-      var hasFunds = tempTransaction.getAmount('input') <= this.getBalance(tempTransaction.getAddress('input'), blockchain, memPool).balance;
+      DB.getBalance(tempTransaction.getAddress('input'), memPool, (balance) => {
+        var hasFunds = tempTransaction.getAmount('input') <= balance;
+        var valid = tempTransaction.isValid();
 
-      if (tempTransaction.isValid() === Constants.OK && hasFunds) {
-        memPool.add(obj);
-        this.sendJson(res, obj);
-      } else {
-        res.status(400);
-        // TOOD: say why invalid
-        this.sendJson(res, { error: 'invalid transaction' });
-      }
+        if (valid === Constants.OK && hasFunds) {
+          memPool.add(obj);
+          this.sendJson(res, obj);
+        } else {
+          res.status(400);
+          // TOOD: say why invalid
+          this.sendJson(res, { error: 'invalid transaction ' + valid });
+        }
+      });
     });
     app.get('/transactions', (req, res) => {
       this.sendJson(res, memPool.get());
@@ -61,6 +65,11 @@ module.exports = class HttpServer {
       });
     }
 
+    app.get('/history', (req, res) => {
+      DB.getAll((data) => {
+        this.sendJson(res, data);
+      });
+    });
     app.get('/blocks', (req, res) => {
       this.sendJson(res, blockchain.getBlockchain());
     });
@@ -81,7 +90,9 @@ module.exports = class HttpServer {
 
     app.get('/balance', (req, res) => {
       // TODO: what if no address
-      this.sendJson(res, this.getBalance(req.query.address, blockchain, memPool));
+      DB.getBalance(req.query.address, memPool, (balance) => {
+        this.sendJson(res, { address: req.query.address, balance: balance });
+      })
     });
 
     app.get('/peers', (req, res) => {
@@ -100,6 +111,7 @@ module.exports = class HttpServer {
     res.send(JSON.stringify(obj));
   }
 
+  // TODO: no longer used in MongoChain. cleanup
   getBalance(address, blockchain, memPool) {
     var balance = blockchain.getBalance(address);
     balance.balance += memPool.getBalance(address).balance;
