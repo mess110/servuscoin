@@ -1,4 +1,5 @@
 var Block = require('./Block');
+var Transaction = require('./Transaction');
 var Constants = require('../utils/Constants');
 var PoW = require('./PoW');
 
@@ -64,7 +65,7 @@ module.exports = class Blockchain {
   }
 
   addNewBlock(newBlock) {
-    if (this.isValidNewBlock(newBlock, this.getLatestBlock())) {
+    if (this.isValidNewBlock(newBlock, this.getLatestBlock()) === Constants.OK) {
       this.push(newBlock);
       this.adjustDifficulty();
       return true;
@@ -83,26 +84,26 @@ module.exports = class Blockchain {
 
   isValidNewBlock(newBlock, previousBlock) {
     if (!(newBlock instanceof Block)) {
-      console.log('newBlock not a block');
-      return false;
+      return Constants.BlockValidation.PARAM_NEW_BLOCK_NOT_A_BLOCK;
     } else if (!(previousBlock instanceof Block)) {
-      console.log('previousBlock not a block');
-      return false;
+      return Constants.BlockValidation.PARAM_PREV_BLOCK_NOT_A_BLOCK;
     } else if (previousBlock.index + 1 !== newBlock.index) {
-      console.log('invalid index');
-      return false;
+      return Constants.BlockValidation.INVALID_INDEX;
     } else if (previousBlock.hash !== newBlock.previousHash) {
-      console.log('invalid previoushash');
-      return false;
+      return Constants.BlockValidation.INVALID_PREV_HASH;
     } else if (newBlock.toHash() !== newBlock.hash) {
-      console.log(typeof (newBlock.hash) + ' ' + typeof newBlock.toHash());
-      console.log('invalid hash: ' + newBlock.toHash() + ' ' + newBlock.hash);
-      return false;
+      return Constants.BlockValidation.INVALID_HASH;
     } else if (!PoW.verify(newBlock.hash, newBlock.nonce, this.difficulty)) {
-      console.log('invalid nonce');
-      return false;
+      return Constants.BlockValidation.INVALID_NONCE;
+    } else {
+      for (var obj of newBlock.data.transactions) {
+        var transaction = Transaction.fromObject(obj);
+        if (transaction.isValid() !== Constants.OK) {
+          return Constants.BlockValidation.INVALID_TRANSACTION_HASH;
+        }
+      }
     }
-    return true;
+    return Constants.OK;
   }
 
   // TODO This method does too much and maybe has a bad name considering what it does
@@ -114,7 +115,7 @@ module.exports = class Blockchain {
     var tempBlocks = [genesis];
     for (var i = 1; i < blockchainToValidate.length; i++) {
       var newBlock = Block.fromObj(blockchainToValidate[i]);
-      if (this.isValidNewBlock(newBlock, tempBlocks[i - 1])) {
+      if (this.isValidNewBlock(newBlock, tempBlocks[i - 1]) === Constants.OK) {
         tempBlocks.push(newBlock);
       } else {
         return false;
@@ -125,12 +126,15 @@ module.exports = class Blockchain {
 
   getBalance(address) {
     var balance = 0;
-
     var blocks = this.getBlockchain()
     for (var block of blocks) {
       balance += Constants.calcBalance(block.data.transactions, address);
     }
     return { address: address, balance: balance };
+  }
+
+  getGenesisBlock() {
+    return Blockchain.getGenesisBlock();
   }
 
   static getGenesisBlock() {

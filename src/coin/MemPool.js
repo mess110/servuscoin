@@ -13,7 +13,7 @@ module.exports = class MemPool {
     var compIds = transactions.map(function (x) {
       return x.hash;
     });
-    this.transactions = this.transactions.filter(function (x) {
+    this.transactions = this.get().filter(function (x) {
       return !compIds.includes(x.hash)
     })
   }
@@ -27,9 +27,19 @@ module.exports = class MemPool {
   }
 
   getBalance(address) {
-    var transactions = this.get();
-    var balance = Constants.calcBalance(transactions, address);
-
+    var balance = Constants.calcBalance(this.get(), address);
     return { address: address, balance: balance };
+  }
+
+  hasTransactions(transactions) {
+    var compIds = transactions.filter(function (x) {
+      return x.transactions.length != 1;
+    }).map(function (x) {
+      return x.hash;
+    });
+    var foundTransactions = this.get().filter(function (x) {
+      return compIds.includes(x.hash)
+    })
+    return foundTransactions.length == compIds.length;
   }
 }

@@ -22,6 +22,7 @@ module.exports = class HttpServer {
     app.get('/info', (req, res) => {
       this.sendJson(res, {
         difficulty: blockchain.difficulty,
+        manualDifficulty: Constants.manualDifficulty,
         adjustBlockCount: blockchain.adjustBlockCount,
         version: Constants.version,
         url: Constants.url,
@@ -33,11 +34,9 @@ module.exports = class HttpServer {
     app.post('/transaction', (req, res) => {
       var obj = req.body;
       var tempTransaction = Transaction.fromObject(obj);
-      var hasFunds = tempTransaction.getInputAmount() <= this.getBalance(tempTransaction.getInputAddress(), blockchain, memPool).balance;
-      var minimumToSend = tempTransaction.getInputAmount() >= 0.01;
-      var correctDecimals = Number((tempTransaction.getInputAmount()).toFixed(Constants.decimals)) == tempTransaction.getInputAmount()
+      var hasFunds = tempTransaction.getAmount('input') <= this.getBalance(tempTransaction.getAddress('input'), blockchain, memPool).balance;
 
-      if (tempTransaction.isValid() && hasFunds && minimumToSend && correctDecimals) {
+      if (tempTransaction.isValid() === Constants.OK && hasFunds) {
         memPool.add(obj);
         this.sendJson(res, obj);
       } else {
@@ -50,22 +49,24 @@ module.exports = class HttpServer {
       this.sendJson(res, memPool.get());
     });
 
-    // app.get('/dec', (req, res) => {
-    //   blockchain.difficulty -= 1;
-    //   this.sendJson(res, {});
-    // })
+    if (Constants.manualDifficulty === true) {
+      app.get('/dec', (req, res) => {
+        blockchain.difficulty -= 1;
+        this.sendJson(res, { difficulty: blockchain.difficulty });
+      });
 
-    // app.get('/inc', (req, res) => {
-    //   blockchain.difficulty += 1;
-    //   this.sendJson(res, {});
-    // })
+      app.get('/inc', (req, res) => {
+        blockchain.difficulty += 1;
+        this.sendJson(res, { difficulty: blockchain.difficulty });
+      });
+    }
 
     app.get('/blocks', (req, res) => {
       this.sendJson(res, blockchain.getBlockchain());
     });
     app.post('/block', (req, res) => {
       var newBlock = blockchain.generateNextBlock(req.body);
-      var added = blockchain.addNewBlock(newBlock);
+      var added = blockchain.addNewBlock(newBlock) && memPool.hasTransactions(newBlock.data.transactions);
       if (added) {
         memPool.remove(newBlock.data.transactions);
         p2p.broadcast(p2p.responseLatestMsg());

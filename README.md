@@ -1,28 +1,29 @@
 # ServusCoin
 
-Every time there was a decision to take, I took the one which took least time to implement
-while offering what was needed.
+Every time there was a decision to take, I took the one which took least time to
+implement.
 
-## Features
-
-* Generate private and public key (singing and veryfing)
-* QR Code Scanner
+At the moment there is an infinte supply of ServusCoins, this might change once
+all security and scaling considerations are taken into account
 
 ## Roadmap
 
-## TODO
+### Scaling
 
-import key
+* Persist blockchain
+* Announce transactions
 
-Choose deployment option
-Host wallet
-Host node
-Select pool (default hardcoded)
-Setup WebRTC wallet
-Take care of longest chain possible hijack (not sure)
-Persist blockchain
-Credits
-Documentation
+### Security
+
+* Take care of longest chain possible hijack (not sure)
+
+### Nice to have
+
+* import key
+* Select pool (default hardcoded)
+* Setup WebRTC wallet
+ * Credits
+ * Documentation
 
 ## Quick start
 

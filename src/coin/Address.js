@@ -35,6 +35,10 @@ module.exports = class Address {
   }
 
   static verify(message, address, signature) {
-    return bitcoinMessage.verify(message, messagePrefix, address, signature);
+    try {
+      return bitcoinMessage.verify(message, messagePrefix, address, signature);
+    } catch (e) {
+      return false;
+    }
   }
 }

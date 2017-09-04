@@ -15,7 +15,7 @@ module.exports = class Miner {
 
     if (this.address) {
       var transaction = new Transaction([
-          { type: 'output', address: this.address.getServusKey(), amount: 1 }
+          { type: 'output', address: this.address.getServusKey(), amount: Constants.miningReward }
       ])
       transaction.sign(this.address.getPrivateKey());
       newBlock.addTransaction(transaction)
