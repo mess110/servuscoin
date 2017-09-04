@@ -3,6 +3,7 @@
 var fs = require('fs');
 
 var Blockchain = require('./coin/Blockchain');
+var Constants = require('./utils/Constants');
 var HttpServer = require('./utils/HttpServer');
 var MemPool = require('./coin/MemPool');
 var P2P = require('./utils/P2P');
@@ -26,3 +27,5 @@ var memPool = new MemPool();
 var p2p = P2P.initP2PServer(p2pPort, blockchain);
 var httpServer = HttpServer.initHttpServer(httpPort, p2p, blockchain, memPool);
 p2p.connectToPeers(initialPeers);
+
+// console.log(Constants.calcBalances(blockchain));

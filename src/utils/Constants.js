@@ -70,6 +70,27 @@ var hash = {
       }
     }
     return balance;
+  },
+
+  calcBalances: (blockchain) => {
+    var allBalances = {}
+
+    for (var block of blockchain.getBlockchain()) {
+      for (var signedTransaction of block.data.transactions) {
+        for (var transaction of signedTransaction.transactions) {
+          if (allBalances[transaction.address] === undefined) {
+            allBalances[transaction.address] = 0;
+          }
+          if (transaction.type == 'input') {
+            allBalances[transaction.address] -= transaction.amount;
+          }
+          if (transaction.type == 'output') {
+            allBalances[transaction.address] += transaction.amount;
+          }
+        }
+      }
+    }
+    return allBalances;
   }
 }
 
