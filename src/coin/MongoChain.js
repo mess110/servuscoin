@@ -4,7 +4,7 @@ var DB = require('../utils/DB');
 module.exports = class MongoChain extends Blockchain {
   constructor() {
     super();
-    this.blocksInMemory = 10;
+    this.blocksInMemory = 500;
   }
 
   _push(block) {
