@@ -3,9 +3,10 @@ const Const = require('./Constants');
 const MessageType = Const.MessageType;
 
 module.exports = class P2P {
-  constructor(p2pPort, blockchain) {
+  constructor(p2pPort, hodler) {
     this.sockets = [];
-    this.blockchain = blockchain;
+    this.blockchain = hodler.blockchain;
+    this.memPool = hodler.memPool;
 
     var server = new WebSocket.Server({port: p2pPort});
     server.on('connection', ws => this.initConnection(ws));
@@ -119,9 +120,5 @@ module.exports = class P2P {
     return {
       'type': MessageType.QUERY_ALL
     };
-  }
-
-  static initP2PServer(p2pPort, blockchain) {
-    return new P2P(p2pPort, blockchain);
   }
 }

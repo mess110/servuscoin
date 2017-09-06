@@ -14,8 +14,6 @@ var decimals = 2;
 var hash = {
   url: 'https://95.85.63.206:3001/',
   // url: 'https://localhost:3001/',
-  db: 'mongodb://127.0.0.1:27017/servuscoin',
-  // db: 'mongodb://172.17.0.3:27017/servuscoin-dev',
   isNode: isNode,
   version: package.version,
   miningReward: 1,

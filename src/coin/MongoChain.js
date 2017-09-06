@@ -1,5 +1,4 @@
 var Blockchain = require('./Blockchain');
-var DB = require('../utils/DB');
 
 module.exports = class MongoChain extends Blockchain {
   constructor() {
@@ -12,7 +11,6 @@ module.exports = class MongoChain extends Blockchain {
       this.blockchain.shift();
     }
     super._push(block);
-    DB.insert(block);
   }
 
   getBalance(address) {

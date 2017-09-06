@@ -4,11 +4,14 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 
 var Constants = require('./Constants');
-var DB = require('./DB');
 var Transaction = require('../coin/Transaction');
 
 module.exports = class HttpServer {
-  constructor(httpPort, p2p, blockchain, memPool) {
+  constructor(httpPort, p2p, hodler) {
+    this.hodler = hodler;
+    var blockchain = hodler.blockchain;
+    var memPool = hodler.memPool;
+
     var app = express();
     app.use(express.static('public'))
 
@@ -35,8 +38,10 @@ module.exports = class HttpServer {
     app.post('/transaction', (req, res) => {
       var obj = req.body;
       var tempTransaction = Transaction.fromObject(obj);
-      DB.getBalance(tempTransaction.getAddress('input'), memPool, (balance) => {
-        var hasFunds = tempTransaction.getAmount('input') <= balance;
+      var inputAddress = tempTransaction.getAddress('input');
+
+      hodler.getBalance(inputAddress, (balance) => {
+        var hasFunds = tempTransaction.getAmount('input') <= balance.balance;
         var valid = tempTransaction.isValid();
 
         if (valid === Constants.OK && hasFunds) {
@@ -66,16 +71,15 @@ module.exports = class HttpServer {
     }
 
     app.get('/history', (req, res) => {
-      DB.getAll((data) => {
-        this.sendJson(res, data);
-      });
+      this.sendJson(res, blockchain.getBlockchain());
     });
     app.get('/blocks', (req, res) => {
       this.sendJson(res, blockchain.getBlockchain());
     });
     app.post('/block', (req, res) => {
       var newBlock = blockchain.generateNextBlock(req.body);
-      var added = blockchain.addNewBlock(newBlock) && memPool.hasTransactions(newBlock.data.transactions);
+      var blockInMemPool = memPool.hasTransactions(newBlock.data.transactions);
+      var added = blockchain.addNewBlock(newBlock) && blockInMemPool;
       if (added) {
         memPool.remove(newBlock.data.transactions);
         p2p.broadcast(p2p.responseLatestMsg());
@@ -90,35 +94,28 @@ module.exports = class HttpServer {
 
     app.get('/balance', (req, res) => {
       // TODO: what if no address
-      DB.getBalance(req.query.address, memPool, (balance) => {
-        this.sendJson(res, { address: req.query.address, balance: balance });
+      hodler.getBalance(req.query.address, (balance) => {
+        this.sendJson(res, balance);
       })
     });
 
     app.get('/peers', (req, res) => {
-      var data = p2p.sockets.map(s => s._socket.remoteAddress + ':' + s._socket.remotePort);
+      var data = p2p.sockets.map(s => {
+        s._socket.remoteAddress + ':' + s._socket.remotePort
+      });
       this.sendJson(res, data);
     });
     app.post('/peer', (req, res) => {
       p2p.connectToPeers([req.body.peer]);
       this.sendJson(res, {});
     });
-    server.listen(httpPort, () => console.log('Listening http on port: ' + httpPort));
+    server.listen(httpPort, () => {
+      console.log('Listening http on port: ' + httpPort)
+    });
   }
 
   sendJson(res, obj) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(obj));
-  }
-
-  // TODO: no longer used in MongoChain. cleanup
-  getBalance(address, blockchain, memPool) {
-    var balance = blockchain.getBalance(address);
-    balance.balance += memPool.getBalance(address).balance;
-    return balance;
-  }
-
-  static initHttpServer(httpPort, p2p, blockchain, memPool) {
-    return new HttpServer(httpPort, p2p, blockchain, memPool)
   }
 }
