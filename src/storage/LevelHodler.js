@@ -17,7 +17,9 @@ module.exports = class LevelHodler extends Hodler {
     readStream.on('data', function (block) {
       blocks.push(block);
     }).on('end', function () {
-      callback(blocks);
+      callback(blocks.sort((a, b) => {
+        return a.index - b.index;
+      }));
     });
   }
 

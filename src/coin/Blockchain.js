@@ -15,7 +15,7 @@ module.exports = class Blockchain {
 
     this.difficulty = Constants.difficulty;
     this.adjustBlockCount = 5;
-    this.targetBlockTime = 10; // seconds
+    this.targetBlockTime = 30; // seconds
     this.blockchain = [tmp];
   }
 

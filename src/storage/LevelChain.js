@@ -4,7 +4,7 @@ var Constants = require('../utils/Constants');
 module.exports = class LevelChain extends Blockchain {
   constructor() {
     super();
-    this.blocksInMemory = 500;
+    this.blocksInMemory = 100;
   }
 
   _push(block) {
