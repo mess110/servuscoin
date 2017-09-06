@@ -6,3 +6,4 @@ public/js/servuscoin.js
 public/js/worker.js
 
 public/blocks.json
+public/db/*

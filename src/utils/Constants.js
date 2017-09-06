@@ -14,6 +14,9 @@ var decimals = 2;
 var hash = {
   url: 'https://95.85.63.206:3001/',
   // url: 'https://localhost:3001/',
+  db: {
+    path: 'public/db'
+  },
   isNode: isNode,
   version: package.version,
   miningReward: 1,

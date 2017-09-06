@@ -4,9 +4,13 @@ module.exports = class Hodler {
     this.memPool = memPool;
   }
 
+  getHistory(callback) {
+    callback(this.blockchain.getBlockchain());
+  }
+
   getBalance(address, callback) {
-    var balance = this.blockchain.getBalance(address);
-    balance.balance += this.memPool.getBalance(address).balance;
+    var balance = this.memPool.getBalance(address);
+    balance.balance += this.blockchain.getBalance(address).balance;
     callback(balance);
   }
 }

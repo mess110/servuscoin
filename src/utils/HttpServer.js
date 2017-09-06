@@ -71,7 +71,9 @@ module.exports = class HttpServer {
     }
 
     app.get('/history', (req, res) => {
-      this.sendJson(res, blockchain.getBlockchain());
+      hodler.getHistory((blocks) => {
+        this.sendJson(res, blocks);
+      });
     });
     app.get('/blocks', (req, res) => {
       this.sendJson(res, blockchain.getBlockchain());
