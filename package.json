@@ -2,6 +2,8 @@
   "name": "servuscoin",
   "version": "0.0.1",
   "description": "",
+  "repository": "https://github.com/mess110/servuscoin",
+  "license": "MIT",
   "scripts": {
     "start": "node src/server.js",
     "browserify-browser": "./node_modules/.bin/browserify src/browser.js --standalone servuscoin > public/js/servuscoin.js",
@@ -21,7 +23,7 @@
     "crypto-js": "^3.1.6",
     "express": "~4.11.1",
     "instascan": "^1.0.0",
-    "mongodb": "^2.2.31",
+    "level": "^1.7.0",
     "nonce": "^1.0.4",
     "request": "^2.81.0",
     "ws": "^1.1.0"

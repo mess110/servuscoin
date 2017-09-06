@@ -2,9 +2,11 @@
 
 var fs = require('fs');
 
-var Blockchain = require('./coin/Blockchain');
+// var Blockchain = require('./coin/Blockchain');
+var Blockchain = require('./storage/LevelChain');
 var Constants = require('./utils/Constants');
-var Hodler = require('./coin/Hodler');
+// var Hodler = require('./coin/Hodler');
+var Hodler = require('./storage/LevelHodler');
 var HttpServer = require('./utils/HttpServer');
 var MemPool = require('./coin/MemPool');
 var P2P = require('./utils/P2P');
@@ -16,7 +18,6 @@ var init = () => {
 
   var blockchain = new Blockchain();
   var memPool = new MemPool();
-
   var hodler = new Hodler(blockchain, memPool);
 
   var backupPath = './public/blocks.json';
@@ -24,6 +25,7 @@ var init = () => {
     console.log('loading blockchain from disk');
     var json = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
     var tempBlocks = blockchain.isValidChain(json);
+    console.log("Loading " + tempBlocks.length + " blocks");
     blockchain.setBlockchain(tempBlocks);
   }
   blockchain.difficulty = 4;
