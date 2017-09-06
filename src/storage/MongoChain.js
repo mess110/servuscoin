@@ -1,4 +1,4 @@
-var Blockchain = require('./Blockchain');
+var Blockchain = require('../src/coin/Blockchain');
 
 module.exports = class MongoChain extends Blockchain {
   constructor() {
