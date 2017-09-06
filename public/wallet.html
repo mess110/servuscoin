@@ -87,6 +87,13 @@
                             <img id="mining" src="/img/mining.gif" class="img-fluid" style="max-height: 330px; display: none; border-radius: 4px;"/>
                             <br />
                             <br />
+                            <div class="form-group has-success">
+                                <label class="custom-control custom-checkbox">
+                                    <input id="non-stop" type="checkbox" class="custom-control-input">
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">All day. All night.</span>
+                                </label>
+                            </div>
                             <button type="button" id="start-mining" class="btn btn-primary">Start</button>
                         </div>
                     </div>
@@ -185,6 +192,9 @@
                                 $('#mining-output').text('Block found!!!!1111oneone');
                             }
                             updateBalance();
+                            if ($('#non-stop').is(':checked')) {
+                                $('#start-mining').click();
+                            }
                         });
                     };
                 } else {
