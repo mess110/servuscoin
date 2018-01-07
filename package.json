@@ -10,7 +10,6 @@
     "browserify-worker": "./node_modules/.bin/browserify src/worker.js --standalone worker > public/js/worker.js",
     "browserify": "npm run browserify-browser && npm run browserify-worker",
     "mine": "node src/cli.js",
-    "old-backup": "curl -k https://95.85.63.206:3001/blocks > public/blocks.json",
     "backup": "curl -k https://95.85.63.206:3001/history > public/blocks.json",
     "test-watch": "mocha -w",
     "test": "mocha"
